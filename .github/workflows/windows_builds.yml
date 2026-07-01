@@ -174,12 +174,12 @@ jobs:
           if (-not (Test-Path "$pwd\svn_extracted\bin\svn.exe")) {
             Write-Host "ERROR: svn.exe not found!"; Get-ChildItem svn_extracted; exit 1
           }
-          # --trust-server-cert handles unknown CA, --trust-server-cert-failures handles hostname mismatch
-          $SVN_TRUST = "--trust-server-cert --trust-server-cert-failures=unknown-ca,cn-mismatch,expired,not-yet-valid,other"
           $MSG = "[Tools] Auto build by ${env:COMMIT_AUTHOR}`n${env:COMMIT_MSG}"
           svn checkout $env:SVN_URL --username $env:SVN_USER --password $env:SVN_PASS `
-            --non-interactive $SVN_TRUST svn_ws
+            --non-interactive --trust-server-cert `
+            --trust-server-cert-failures=unknown-ca,cn-mismatch,expired,not-yet-valid,other svn_ws
           Copy-Item ${{ matrix.bin }} svn_ws/
           svn commit svn_ws/ -m "$MSG" `
             --username $env:SVN_USER --password $env:SVN_PASS `
-            --non-interactive $SVN_TRUST
+            --non-interactive --trust-server-cert `
+            --trust-server-cert-failures=unknown-ca,cn-mismatch,expired,not-yet-valid,other
