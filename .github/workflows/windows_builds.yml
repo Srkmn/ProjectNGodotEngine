@@ -160,8 +160,8 @@ jobs:
         run: |
           choco install svn --no-progress -y
           refreshenv
-          # Accept SSL cert (SVN 1.8 requires manual accept; 1.9+ uses --trust-server-cert)
-          echo p | svn info $env:SVN_URL --username $env:SVN_USER --password $env:SVN_PASS
+          # Accept SSL cert via cmd (PowerShell pipe doesn't work the same for interactive prompts)
+          cmd /c "echo p | svn info $env:SVN_URL --username $env:SVN_USER --password $env:SVN_PASS"
           $MSG = "[Tools] Auto build by ${env:COMMIT_AUTHOR}`n${env:COMMIT_MSG}"
           svn checkout $env:SVN_URL --username $env:SVN_USER --password $env:SVN_PASS `
             --non-interactive svn_ws
