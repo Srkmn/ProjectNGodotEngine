@@ -183,7 +183,9 @@ jobs:
           if (-not (Test-Path $src)) { Write-Host "ERROR: Binary not found: $src"; ls bin/; exit 1 }
           Write-Host "Source: $src (size: $((Get-Item $src).Length))"
           Copy-Item $src svn_ws/ -Force -Verbose
-          Write-Host "=== SVN status ==="
+          Write-Host "=== SVN add & status ==="
+          $binName = Split-Path $src -Leaf
+          svn add --force svn_ws/$binName
           svn status svn_ws/
           Write-Host "=== SVN commit ==="
           svn commit svn_ws/ -m "$MSG" `
