@@ -29,15 +29,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Editor (target=editor, dev_build=true)
+          - name: Editor (target=editor)
             cache-name: windows-editor
             target: editor
             scons-flags: >-
-              windows_subsystem=console
+              windows_subsystem=gui
               vsproj=yes
               vsproj_gen_only=no
-              dev_build=true
-            bin: ./bin/godot.windows.editor.dev.x86_64.exe
+            bin: ./bin/godot.windows.editor.x86_64.exe
             compiler: msvc
 
           # - name: Editor w/ clang-cl (target=editor, use_llvm=yes)
