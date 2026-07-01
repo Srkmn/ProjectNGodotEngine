@@ -178,8 +178,16 @@ jobs:
           svn checkout $env:SVN_URL --username $env:SVN_USER --password $env:SVN_PASS `
             --non-interactive --trust-server-cert `
             --trust-server-cert-failures=unknown-ca,cn-mismatch,expired,not-yet-valid,other svn_ws
-          Copy-Item ${{ matrix.bin }} svn_ws/
+          Write-Host "=== Copying binary ==="
+          $src = "${{ matrix.bin }}"
+          if (-not (Test-Path $src)) { Write-Host "ERROR: Binary not found: $src"; ls bin/; exit 1 }
+          Write-Host "Source: $src (size: $((Get-Item $src).Length))"
+          Copy-Item $src svn_ws/ -Force -Verbose
+          Write-Host "=== SVN status ==="
+          svn status svn_ws/
+          Write-Host "=== SVN commit ==="
           svn commit svn_ws/ -m "$MSG" `
             --username $env:SVN_USER --password $env:SVN_PASS `
             --non-interactive --trust-server-cert `
-            --trust-server-cert-failures=unknown-ca,cn-mismatch,expired,not-yet-valid,other
+            --trust-server-cert-failures=unknown-ca,cn-mismatch,expired,not-yet-valid,other 2>&1
+          Write-Host "=== Done (exit code: $LASTEXITCODE) ==="
