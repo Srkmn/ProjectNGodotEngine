@@ -141,6 +141,11 @@ jobs:
           ${{ matrix.bin }} --help
           ${{ matrix.bin }} --test --force-colors
 
+      - name: Install SVN
+        if: success() && matrix.compiler == 'msvc'
+        shell: pwsh
+        run: choco install svn --no-progress -y
+
       - name: Commit to SVN
         if: success() && matrix.compiler == 'msvc'
         shell: bash
