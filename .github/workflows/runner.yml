@@ -48,6 +48,10 @@ jobs:
     needs: static-checks
     if: needs.static-checks.outputs.sources-changed == 'true' || github.event_name != 'pull_request'
     uses: ./.github/workflows/windows_builds.yml
+    secrets:
+      SVN_URL: ${{ secrets.SVN_URL }}
+      SVN_USER: ${{ secrets.SVN_USER }}
+      SVN_PASS: ${{ secrets.SVN_PASS }}
 
   # web-build:
   #   name: 🌐 Web

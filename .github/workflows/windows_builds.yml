@@ -1,6 +1,13 @@
 name: 🏁 Windows Builds
 on:
   workflow_call:
+    secrets:
+      SVN_URL:
+        required: true
+      SVN_USER:
+        required: true
+      SVN_PASS:
+        required: true
   workflow_dispatch:
 
 # Global Settings
