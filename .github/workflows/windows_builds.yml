@@ -160,10 +160,14 @@ jobs:
         run: |
           choco install svn --no-progress -y
           refreshenv
+          $SVN_CMD = "C:\Program Files (x86)\Subversion\bin\svn.exe"
+          # Accept SSL cert permanently (SVN 1.8 doesn't support --trust-server-cert)
+          echo p | & $SVN_CMD info $env:SVN_URL --username $env:SVN_USER --password $env:SVN_PASS
+          # Now checkout with non-interactive
           $MSG = "[Tools] Auto build by ${env:COMMIT_AUTHOR}`n${env:COMMIT_MSG}"
-          svn checkout $env:SVN_URL --username $env:SVN_USER --password $env:SVN_PASS `
-            --non-interactive --trust-server-cert svn_ws
+          & $SVN_CMD checkout $env:SVN_URL --username $env:SVN_USER --password $env:SVN_PASS `
+            --non-interactive svn_ws
           Copy-Item ${{ matrix.bin }} svn_ws/
-          svn commit svn_ws/ -m "$MSG" `
+          & $SVN_CMD commit svn_ws/ -m "$MSG" `
             --username $env:SVN_USER --password $env:SVN_PASS `
-            --non-interactive --trust-server-cert
+            --non-interactive
