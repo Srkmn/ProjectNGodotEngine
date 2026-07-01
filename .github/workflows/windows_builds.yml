@@ -140,3 +140,22 @@ jobs:
           ${{ matrix.bin }} --version
           ${{ matrix.bin }} --help
           ${{ matrix.bin }} --test --force-colors
+
+      - name: Commit to SVN
+        if: success() && matrix.compiler == 'msvc'
+        shell: bash
+        env:
+          SVN_URL: ${{ secrets.SVN_URL }}
+          SVN_USER: ${{ secrets.SVN_USER }}
+          SVN_PASS: ${{ secrets.SVN_PASS }}
+          COMMIT_AUTHOR: ${{ github.event.head_commit.author.name }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          MSG="[Tools] Auto build by ${COMMIT_AUTHOR}
+          ${COMMIT_MSG}"
+          svn checkout $SVN_URL --username "$SVN_USER" --password "$SVN_PASS" \
+            --non-interactive --trust-server-cert svn_ws
+          cp ${{ matrix.bin }} svn_ws/
+          svn commit svn_ws/ -m "$MSG" \
+            --username "$SVN_USER" --password "$SVN_PASS" \
+            --non-interactive --trust-server-cert
