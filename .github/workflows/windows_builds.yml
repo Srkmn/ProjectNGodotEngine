@@ -169,13 +169,12 @@ jobs:
             winget install -e --id Apache.Subversion --silent --accept-package-agreements --accept-source-agreements
           }
           Expand-Archive svn.zip -DestinationPath . -Force
-          Write-Host "Extracted. Directories:"
-          Get-ChildItem -Directory | ForEach-Object { Write-Host "  $($_.Name)" }
-          $svnDir = Get-ChildItem -Directory | Where-Object { $_.Name -like "*Subversion*" } | Select-Object -First 1
-          if (-not $svnDir) { $svnDir = Get-ChildItem -Directory | Where-Object { $_.Name -like "*svn*" } | Select-Object -First 1 }
-          if (-not $svnDir) { Write-Host "ERROR: Could not find SVN directory!"; ls; exit 1 }
-          Write-Host "SVN dir: $($svnDir.FullName)"
-          $env:PATH = "$($svnDir.FullName)\bin;$env:PATH"
+          # Extract to dedicated folder (zip has no root dir, files would scatter otherwise)
+          Expand-Archive svn.zip -DestinationPath svn_extracted -Force
+          $env:PATH = "$pwd\svn_extracted\bin;$env:PATH"
+          if (-not (Test-Path "$pwd\svn_extracted\bin\svn.exe")) {
+            Write-Host "ERROR: svn.exe not found!"; Get-ChildItem svn_extracted; exit 1
+          }
           $MSG = "[Tools] Auto build by ${env:COMMIT_AUTHOR}`n${env:COMMIT_MSG}"
           svn checkout $env:SVN_URL --username $env:SVN_USER --password $env:SVN_PASS `
             --non-interactive --trust-server-cert svn_ws
