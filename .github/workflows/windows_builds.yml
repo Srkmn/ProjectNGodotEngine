@@ -173,9 +173,6 @@ jobs:
           if (-not (Test-Path "$pwd\svn_extracted\bin\svn.exe")) {
             Write-Host "ERROR: svn.exe not found!"; Get-ChildItem svn_extracted; exit 1
           }
-          # Fix encoding for Chinese characters; use SVN user from secrets for prefix
-          $OutputEncoding = [Console]::OutputEncoding = [Text.Encoding]::UTF8
-          $MSG = "[$env:SVN_USER] Auto build by ${env:COMMIT_AUTHOR}`n${env:COMMIT_MSG}"
           svn checkout $env:SVN_URL --username $env:SVN_USER --password $env:SVN_PASS `
             --non-interactive --trust-server-cert `
             --trust-server-cert-failures=unknown-ca,cn-mismatch,expired,not-yet-valid,other svn_ws
@@ -189,7 +186,10 @@ jobs:
           svn add --force svn_ws/$binName
           svn status svn_ws/
           Write-Host "=== SVN commit ==="
-          svn commit svn_ws/ -m "$MSG" `
+          # Write message to file to preserve UTF-8 encoding (PowerShell -m arg mangles it)
+          $MSG = "[$env:SVN_USER] Auto build by ${env:COMMIT_AUTHOR}`n${env:COMMIT_MSG}"
+          $MSG | Out-File -FilePath svn_msg.txt -Encoding UTF8
+          svn commit svn_ws/ -F svn_msg.txt `
             --username $env:SVN_USER --password $env:SVN_PASS `
             --non-interactive --trust-server-cert `
             --trust-server-cert-failures=unknown-ca,cn-mismatch,expired,not-yet-valid,other 2>&1
