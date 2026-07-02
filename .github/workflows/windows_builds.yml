@@ -186,10 +186,7 @@ jobs:
           svn add --force svn_ws/$binName
           svn status svn_ws/
           Write-Host "=== SVN commit ==="
-          # Write message to file to preserve UTF-8 encoding (PowerShell -m arg mangles it)
-          $MSG = "[$env:SVN_USER] Auto build by ${env:COMMIT_AUTHOR}`n${env:COMMIT_MSG}"
-          $MSG | Out-File -FilePath svn_msg.txt -Encoding UTF8
-          svn commit svn_ws/ -F svn_msg.txt `
+          svn commit svn_ws/ -m "[Tools] Auto build by ${{ github.actor }} #${{ github.run_number }}" `
             --username $env:SVN_USER --password $env:SVN_PASS `
             --non-interactive --trust-server-cert `
             --trust-server-cert-failures=unknown-ca,cn-mismatch,expired,not-yet-valid,other 2>&1
