@@ -103,6 +103,7 @@ class FindInFilesDialog : public AcceptDialog {
 
 	String _validate_filter_wildcard(const String &p_expression) const;
 
+	bool extensions_dirty = true;
 	bool replace_mode = false;
 	LineEdit *search_text_line_edit = nullptr;
 
@@ -224,7 +225,7 @@ public:
 	void start_search();
 	void stop_search();
 
-	void update_layout(EditorDock::DockLayout p_layout, EditorDock::DockSlot p_slot);
+	void update_layout(EditorDock::DockLayout p_layout, int p_slot);
 
 	FindInFilesPanel();
 };
@@ -269,7 +270,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	virtual void update_layout(EditorDock::DockLayout p_layout, EditorDock::DockSlot p_slot) override;
+	virtual void update_layout(EditorDock::DockLayout p_layout, int p_slot) override;
 
 	FindInFilesPanel *get_panel_for_results(const String &p_label);
 
