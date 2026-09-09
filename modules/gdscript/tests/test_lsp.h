@@ -35,6 +35,7 @@
 #ifndef GDSCRIPT_NO_LSP
 
 #include "../gdscript_analyzer.h"
+#include "../gdscript_linter.h"
 #include "../language_server/gdscript_extend_parser.h"
 #include "../language_server/gdscript_language_protocol.h"
 #include "../language_server/gdscript_workspace.h"
@@ -42,10 +43,9 @@
 #include "gdscript_test_runner.h"
 
 #include "core/io/dir_access.h"
+#include "core/string/regex.h"
 #include "editor/file_system/editor_file_system.h"
 #include "tests/test_macros.h"
-
-#include "modules/regex/regex.h"
 
 #include <thirdparty/doctest/doctest.h>
 
@@ -312,6 +312,14 @@ void assert_no_errors_in(const String &p_path) {
 
 	GDScriptAnalyzer analyzer(&parser);
 	err = analyzer.analyze();
+
+#ifdef DEBUG_ENABLED
+	if (err == OK) {
+		GDScriptLinter linter(parser);
+		err = linter.lint();
+	}
+#endif
+
 	REQUIRE_MESSAGE(err == OK, vformat("Errors while analyzing '%s'", p_path));
 }
 

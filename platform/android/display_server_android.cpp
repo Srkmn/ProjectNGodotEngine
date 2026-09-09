@@ -375,8 +375,9 @@ float DisplayServerAndroid::screen_get_scale(int p_screen) const {
 	// Update the scale to avoid cropping.
 	Size2i screen_size = screen_get_size(p_screen);
 	if (screen_size != Size2i()) {
-		float width_scale = screen_size.width / (float)OS_Android::DEFAULT_WINDOW_WIDTH;
-		float height_scale = screen_size.height / (float)OS_Android::DEFAULT_WINDOW_HEIGHT;
+		bool is_portrait = screen_size.height > screen_size.width;
+		float width_scale = screen_size.width / (float)(is_portrait ? OS_Android::DEFAULT_WINDOW_HEIGHT : OS_Android::DEFAULT_WINDOW_WIDTH);
+		float height_scale = screen_size.height / (float)(is_portrait ? OS_Android::DEFAULT_WINDOW_WIDTH : OS_Android::DEFAULT_WINDOW_HEIGHT);
 		screen_scale = MIN(screen_scale, MIN(width_scale, height_scale));
 	}
 
@@ -876,6 +877,10 @@ void DisplayServerAndroid::process_magnetometer(const Vector3 &p_magnetometer) {
 
 void DisplayServerAndroid::process_gyroscope(const Vector3 &p_gyroscope) {
 	Input::get_singleton()->set_gyroscope(p_gyroscope);
+}
+
+void DisplayServerAndroid::process_device_orientation(const Quaternion &p_orientation) {
+	Input::get_singleton()->set_device_orientation(p_orientation);
 }
 
 void DisplayServerAndroid::_mouse_update_mode() {

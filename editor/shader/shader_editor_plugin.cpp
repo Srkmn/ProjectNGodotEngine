@@ -48,18 +48,18 @@ void ShaderEditorPlugin::shortcut_input(const Ref<InputEvent> &p_event) {
 	}
 
 	if (make_floating_shortcut.is_valid() && make_floating_shortcut->matches_event(p_event)) {
-		shader_dock->make_floating();
+		script_editor->make_floating();
 	}
 }
 
 void ShaderEditorPlugin::make_visible(bool p_visible) {
 	if (p_visible) {
-		shader_dock->open();
+		script_editor->open();
 	}
 }
 
 void ShaderEditorPlugin::set_current() {
-	shader_dock->make_visible();
+	script_editor->make_visible();
 	TextEditorBase *text_shader_editor = Object::cast_to<TextEditorBase>(script_editor->get_current_editor());
 	if (text_shader_editor) {
 		text_shader_editor->ensure_focus();
@@ -126,26 +126,14 @@ String ShaderEditorPlugin::get_unsaved_status(const String &p_for_scene) const {
 		if (unsaved_built_in_scripts.is_empty()) {
 			return String();
 		} else {
-			message.resize(unsaved_built_in_scripts.size() + 1);
-			message.write[0] = TTR("There are unsaved changes in the following built-in resource(s)");
-
-			int i = 1;
-			for (const String &E : unsaved_built_in_scripts) {
-				message.write[i] = E.trim_suffix("(*)");
-				i++;
-			}
+			message.push_back(TTR("There are unsaved changes in the following built-in resource(s)"));
+			message.append_array(unsaved_built_in_scripts);
 			return String("\n").join(message);
 		}
 	}
 
-	message.resize(unsaved_scripts.size() + 1);
-	message.write[0] = TTR("Save changes to the following file(s) before quitting?");
-
-	int i = 1;
-	for (const String &E : unsaved_scripts) {
-		message.write[i] = E.trim_suffix("(*)");
-		i++;
-	}
+	message.push_back(TTR("Save changes to the following file(s) before quitting?"));
+	message.append_array(unsaved_scripts);
 	return String("\n").join(message);
 }
 
@@ -162,22 +150,19 @@ ShaderEditorPlugin::ShaderEditorPlugin() {
 	text_shader_lang.instantiate();
 	EditorShaderLanguagePlugin::register_shader_language(text_shader_lang);
 
-	shader_dock = memnew(EditorDock);
-	shader_dock->set_name(TTRC("Shader Editor"));
-	shader_dock->set_icon_name("ShaderDock");
-	shader_dock->set_dock_shortcut(ED_SHORTCUT_AND_COMMAND("bottom_panels/toggle_shader_editor_bottom_panel", TTRC("Toggle Shader Editor Dock"), KeyModifierMask::ALT | Key::S));
-	shader_dock->set_default_slot(EditorDock::DOCK_SLOT_BOTTOM);
-	shader_dock->set_available_layouts(EditorDock::DOCK_LAYOUT_HORIZONTAL | EditorDock::DOCK_LAYOUT_FLOATING);
-	shader_dock->set_custom_minimum_size(Size2(460, 300) * EDSCALE);
-	EditorDockManager::get_singleton()->add_dock(shader_dock);
-
 	set_process_shortcut_input(true);
 
 	make_floating_shortcut = ED_SHORTCUT_AND_COMMAND("shader_editor/make_floating", TTRC("Make Floating"));
 
-	script_editor = memnew(ScriptEditor(config_section, "shader_editor_cache.cfg", nullptr, shader_dock));
+	script_editor = memnew(ScriptEditor(config_section, "shader_editor_cache.cfg"));
 	script_editor->set_handled_resource_types({ "Shader", "VisualShader", "ShaderInclude" });
-	shader_dock->add_child(script_editor);
+
+	script_editor->set_name(TTRC("Shader Editor"));
+	script_editor->set_icon_name("ShaderDock");
+	script_editor->set_dock_shortcut(ED_SHORTCUT_AND_COMMAND("bottom_panels/toggle_shader_editor_bottom_panel", TTRC("Toggle Shader Editor Dock"), KeyModifierMask::ALT | Key::S));
+	script_editor->set_default_slot(EditorDock::DOCK_SLOT_BOTTOM);
+	script_editor->set_available_layouts(EditorDock::DOCK_LAYOUT_HORIZONTAL | EditorDock::DOCK_LAYOUT_FLOATING);
+	EditorDockManager::get_singleton()->add_dock(script_editor);
 }
 
 ShaderEditorPlugin::~ShaderEditorPlugin() {
